@@ -14,7 +14,7 @@ The hash function for Billcoin is defined as taking the following value for each
 ((x**3000) + (x**x) - (3**x)) * (7**x)
 ```
 
-The result of this calculation for each character, and then summing up the results.  This sum is then taken modulo 65536, and displayed as up to four hexadecimal characters ("hexits").  That is, leading 0's in the final hash string should not be displayed - "aaa" and not "0aaa".  All hexadecimal digits shown should be in lowercase - "aaa" not "AAA".  For an example, see the file `hash_walkthrough.txt` in this directory.
+Get the result of this calculation for each character, and then sum up the results.  This sum is then taken modulo 65536, and displayed as up to four hexadecimal characters ("hexits").  That is, leading 0's in the final hash string should not be displayed - "aaa" and not "0aaa".  All hexadecimal digits shown should be in lowercase - "aaa" not "AAA".  For an example, see the file `hash_walkthrough.txt` in this directory.
 
 Input for hashes should be considered as a string, e.g., reading the value 555 is three characters -- ['5', '5', '5'] -- not the number 555.
 
@@ -60,10 +60,16 @@ Each line consists of one block.  A block consists of the following elements, se
   * Determine that value modulo 65536
   * Return the resulting value as a string version of the number in base-16 (hexadecimal)
   * See the file `hash_walkthrough.txt` for detailed steps walking through a simple hash.
+  * Note that the hash includes the first four elements of the string including the pipe delimiters.  It does not include the final pipe delimiter since we haven't added the final data element yet.  For example, for the first block in `sample.txt`:
+
+```
+irb(main):022:0> calc_hash "0|0|SYSTEM>569274(100)|1553184699.650330000"
+=> "288d"
+```
 
 Transactions must be valid on a per-block basis.  This means that there may be a point mid-way through the block that an address has a negative balance, but every address should have a nonnegative balance (>= 0) by the end of the block.
 
-For example, assume 111111 has 5 billcoins in his account and 222222 has 0, and you receive this block.
+For example, assume 111111 has 5 billcoins in their account and 222222 has 0, and you receive this block.
 
 ```
 8|e01d|222222>333333(3):111111>222222(4):SYSTEM>444444(100)|1518839370.605237540|c87b
@@ -74,14 +80,14 @@ Your first thought might be that this is invalid, since 222222 gave 333333 3 bil
 There are many reasons that a blockchain will fail to be verified.  I expect you to test for these as well as think of any additional ways that an invalid blockchain may be detected.  Examples include:
 
 1. Hash or previous hash of a block is not correct
-2. Timestamp does not increase monotonically (make sure you understand the timestamp format!)
+2. Timestamp does not increase strictly (make sure you understand the timestamp format!)
 3. An address, at the end of any block, has a negative balance
 4. An invalid address (anything other than six decimal digits)
 5. An invalid character was found on a line (extra pipe (`|`), for example)
 
 Upon discovering an error in verification, your program shall indicate which line contains the error and what the error is (e.g., invalid character, invalid address, timestamp did not increase, etc.)  If possible, it should indicate what it _expected_ the value to be.  This will not be possible for things like "unable to parse line" errors, but is for things such as bad previous hash.
 
-Otherwise, if the blockchain is entirely valid, your program should print out all addresses and their associated number of billcoins.  You must print these values out in ascending order, with the lowest number address first and the highest number address last (e.g., if you have addresses "000008", "100000", and "900000", they should be printed in that order, as 000008 is the lowest number, 100000 is in the middle, and 900000 is the highest).
+Otherwise, if the blockchain is entirely valid, your program should print out all addresses which contain billcoins, and their associated number of billcoins.  You should not print out any addresses that have 0 billcoins after the final block has transacted.  You must print these values out in ascending order of the address, with the lowest number address first and the highest number address last (e.g., if you have addresses "000008", "100000", and "900000", they should be printed in that order, as 000008 is the lowest number, 100000 is in the middle, and 900000 is the highest).
 
 See the `sample_output.txt` file in this directory for the correct output for a variety of different input files including errors.
 
@@ -101,5 +107,9 @@ Note that this project is a very, very simple implementation of a blockchain, mi
 2. The Ethereum Whitepaper (the original theory behind Ethereum) - https://github.com/ethereum/wiki/wiki/White-Paper
 3. The Ethereum Yellowpaper (the implementation of Ethereum) - https://github.com/ethereum/yellowpaper
 4. "Mastering Bitcoin" by Andreas Antonopoulos (book on the technical details of Bitcoin)
-5. "Bitcoin for the Befuddled" by Chris Wilmer (a professor at Pitt) and Conrad Barski
-6. "Introducing Ethereum and Solidity" by Chris Dannen (book introducing Ethereum)
+5. "Mastering Ethereum" by Andreas Antonopoulos and Gavin Wood (book on the technical details of Ethereum)
+6. "Bitcoin for the Befuddled" by Chris Wilmer (a professor at Pitt) and Conrad Barski
+7. "Introducing Ethereum and Solidity" by Chris Dannen (book introducing Ethereum)
+8. "The Age of Cryptocurrency" - Good introduction to the world of Bitcoin and other cryptocurrencies in a "pop tech" form
+9. "How Money Got Free" - Similar book to "The Age of Cryptocurrency" but much more focused on Bitcoin specifically
+9. "Strength in Numbers" by Bill Laboon - A science-fiction novel exploring a world where cryptocurrency has eliminated traditional money
